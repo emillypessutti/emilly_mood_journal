@@ -21,24 +21,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       color: AppTheme.primaryRose,
     ),
     OnboardingPage(
-      icon: Icons.insights,
-      title: 'Analise seus padrões',
+      icon: Icons.calendar_today,
+      title: 'Histórico completo',
       description:
-          'Visualize gráficos e tendências para entender melhor seus sentimentos.',
+          'Acesse todos os seus registros anteriores e acompanhe sua jornada emocional.',
       color: AppTheme.primaryIndigo,
     ),
     OnboardingPage(
-      icon: Icons.psychology,
-      title: 'Melhore seu bem-estar',
+      icon: Icons.flag,
+      title: 'Metas diárias',
       description:
-          'Receba dicas personalizadas e frases motivacionais baseadas no seu humor.',
+          'Defina e acompanhe suas metas diárias de bem-estar e autocuidado.',
       color: AppTheme.primaryRose,
     ),
     OnboardingPage(
-      icon: Icons.security,
-      title: 'Privacidade garantida',
+      icon: Icons.lock,
+      title: 'Seus dados, seu dispositivo',
       description:
-          'Seus dados são seguros e privados no MoodJournal, seguindo as melhores práticas de segurança.',
+          'Tudo fica armazenado apenas no seu celular. Nada é enviado para servidores externos.',
       color: AppTheme.primaryIndigo,
     ),
   ];
@@ -56,12 +56,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      Navigator.of(context).pushReplacementNamed('/privacy');
+      // Última página: vai para política com enforcement
+      Navigator.of(context).pushReplacementNamed(
+        '/privacy',
+        arguments: {'enforce': true},
+      );
     }
   }
 
   void _skip() {
-    Navigator.of(context).pushReplacementNamed('/privacy');
+    // Skip também vai para política com enforcement
+    Navigator.of(context).pushReplacementNamed(
+      '/privacy',
+      arguments: {'enforce': true},
+    );
   }
 
   @override

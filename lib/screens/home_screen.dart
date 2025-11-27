@@ -63,7 +63,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       drawer: const AppDrawer(),
       appBar: AppBar(
-        title: const Text('Daily Goal'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.sentiment_very_satisfied,
+                size: 20,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'MoodJournal',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
+        centerTitle: true,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

@@ -113,6 +113,12 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
       acceptedAt: DateTime.now(),
     );
     await PreferencesService.setConsentMarketing(_acceptedMarketing);
+    
+    // Marcar que completou o primeiro acesso
+    if (widget.enforceAcceptance) {
+      await PreferencesService.setFirstTimeCompleted();
+    }
+    
     if (!mounted) return;
     
     // Se foi forçado (primeiro acesso), vai para profile-setup

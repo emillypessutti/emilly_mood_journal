@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -51,12 +51,20 @@ class _SplashScreenState extends State<SplashScreen>
   void _navigateToNext() async {
     await Future.delayed(const Duration(milliseconds: 3000));
     if (!mounted) return;
-    // In debug mode, go straight to home to speed development flow.
-    if (kDebugMode) {
+    
+    // Verificar se é a primeira vez
+    final prefs = await SharedPreferences.getInstance();
+    final isFirstTime = prefs.getBool('first_time') ?? true;
+    
+    if (isFirstTime) {
+      // Primeira vez: vai para onboarding
+      if (!mounted) return;
+      Navigator.of(context).pushReplacementNamed('/onboarding');
+    } else {
+      // Já passou pelo onboarding: vai direto para home
+      if (!mounted) return;
       Navigator.of(context).pushReplacementNamed('/home');
-      return;
     }
-    Navigator.of(context).pushReplacementNamed('/onboarding');
   }
 
   @override
