@@ -8,11 +8,24 @@ import 'screens/onboarding_screen.dart';
 import 'screens/privacy_policy_screen.dart';
 import 'screens/profile_setup_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/auth_screen.dart';
 import 'theme/app_theme.dart';
+import 'services/supabase_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Inicializa SharedPreferences
   final prefs = await SharedPreferences.getInstance();
+  
+  // Inicializa Supabase (se configurado)
+  try {
+    await SupabaseService.initialize();
+  } catch (e) {
+    debugPrint('⚠️ Supabase não configurado: $e');
+    // App continua funcionando apenas com cache local
+  }
+  
   runApp(
     ProviderScope(
       overrides: [
@@ -43,6 +56,7 @@ class MoodJournalApp extends StatelessWidget {
       home: const SplashScreen(),
       routes: {
         '/splash': (context) => const SplashScreen(),
+        '/auth': (context) => const AuthScreen(),
         '/onboarding': (context) => const OnboardingScreen(),
         '/privacy': (context) {
           final args = ModalRoute.of(context)?.settings.arguments;

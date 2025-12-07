@@ -1,66 +1,33 @@
-/// Entity de domínio para Estatísticas de Humor
-/// Contém invariantes de domínio e cálculos agregados
+/// Entity de domínio para estatísticas de humor agregadas
+/// Representa métricas calculadas para um período (dia, semana, mês, custom)
 class MoodStatisticsEntity {
   MoodStatisticsEntity({
     required this.userId,
     required this.period,
     required this.averageMood,
     required this.totalEntries,
-    required this.moodDistribution,
+    required Map<String, int> moodDistribution,
     required this.startDate,
     required this.endDate,
-  })  : assert(userId.isNotEmpty, 'User ID não pode ser vazio'),
-        assert(averageMood >= 1.0 && averageMood <= 5.0,
-            'Média de humor deve estar entre 1.0 e 5.0'),
-        assert(totalEntries >= 0, 'Total de registros não pode ser negativo'),
-        assert(
-            startDate.isBefore(endDate) || startDate.isAtSameMomentAs(endDate),
-            'Data inicial deve ser anterior ou igual à data final');
+  })  : moodDistribution = Map.unmodifiable(moodDistribution),
+        assert(userId.isNotEmpty, 'userId não pode ser vazio'),
+        assert(totalEntries >= 0, 'totalEntries deve ser >= 0'),
+        assert(averageMood >= 1 && averageMood <= 5,
+            'averageMood deve estar entre 1 e 5'),
+        assert(!endDate.isBefore(startDate), 'endDate não pode ser antes de startDate');
+
   final String userId;
   final Period period;
-  final double averageMood;
-  final int totalEntries;
-  final Map<String, int> moodDistribution; // mood level -> count
+  final double averageMood; // média ponderada dos níveis de humor (1..5)
+  final int totalEntries; // quantidade total de registros no período
+  final Map<String, int> moodDistribution; // chave = nível (ex: 'veryHappy'), valor = contagem
   final DateTime startDate;
   final DateTime endDate;
 
-  /// Calcula o humor predominante no período
-  String get dominantMood {
-    if (moodDistribution.isEmpty) return 'neutral';
+  int get distinctLevels => moodDistribution.length;
+  bool get isEmpty => totalEntries == 0;
+  Duration get duration => endDate.difference(startDate);
 
-    var maxCount = 0;
-    var dominantMoodKey = 'neutral';
-
-    moodDistribution.forEach((mood, count) {
-      if (count > maxCount) {
-        maxCount = count;
-        dominantMoodKey = mood;
-      }
-    });
-
-    return dominantMoodKey;
-  }
-
-  /// Verifica se há dados suficientes para análise
-  bool get hasEnoughData => totalEntries >= 3;
-
-  /// Calcula tendência (positiva, negativa, estável)
-  String get trend {
-    if (averageMood >= 4.0) return 'positive';
-    if (averageMood <= 2.0) return 'negative';
-    return 'stable';
-  }
-
-  /// Retorna descrição do período em dias
-  int get periodInDays => endDate.difference(startDate).inDays;
-
-  /// Média de registros por dia
-  double get averageEntriesPerDay {
-    final days = periodInDays > 0 ? periodInDays : 1;
-    return totalEntries / days;
-  }
-
-  /// Cópia com modificação
   MoodStatisticsEntity copyWith({
     String? userId,
     Period? period,
@@ -82,9 +49,13 @@ class MoodStatisticsEntity {
   }
 
   @override
+  String toString() {
+    return 'MoodStatisticsEntity(userId: $userId, period: ${period.name}, avg: $averageMood, total: $totalEntries)';
+  }
+
+  @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-
     return other is MoodStatisticsEntity &&
         other.userId == userId &&
         other.period == period &&
@@ -95,38 +66,26 @@ class MoodStatisticsEntity {
   }
 
   @override
-  int get hashCode {
-    return userId.hashCode ^
-        period.hashCode ^
-        averageMood.hashCode ^
-        totalEntries.hashCode ^
-        startDate.hashCode ^
-        endDate.hashCode;
-  }
-
-  @override
-  String toString() {
-    return 'MoodStatisticsEntity(userId: $userId, period: $period, avgMood: $averageMood, entries: $totalEntries)';
-  }
+  int get hashCode =>
+      userId.hashCode ^
+      period.hashCode ^
+      averageMood.hashCode ^
+      totalEntries.hashCode ^
+      startDate.hashCode ^
+      endDate.hashCode;
 }
 
-/// Enum de domínio para período de análise
+/// Enum representando o tipo de período de agregação
 enum Period {
-  week('Semana', 7),
-  month('Mês', 30),
-  quarter('Trimestre', 90),
-  year('Ano', 365);
+  day,
+  week,
+  month,
+  custom;
 
-  const Period(this.description, this.days);
-
-  final String description;
-  final int days;
-
-  /// Cria Period a partir de string
   static Period fromString(String value) {
     return Period.values.firstWhere(
-      (period) => period.name == value,
-      orElse: () => throw ArgumentError('Período inválido: $value'),
+      (p) => p.name.toLowerCase() == value.toLowerCase(),
+      orElse: () => throw ArgumentError('Periodo inválido: $value'),
     );
   }
 }

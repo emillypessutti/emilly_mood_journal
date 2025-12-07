@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
+import '../services/supabase_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -51,6 +52,12 @@ class _SplashScreenState extends State<SplashScreen>
   void _navigateToNext() async {
     await Future.delayed(const Duration(milliseconds: 3000));
     if (!mounted) return;
+    
+    // Se Supabase configurado e usuário não autenticado, vai para login
+    if (SupabaseService.isInitialized && !SupabaseService.isAuthenticated) {
+      Navigator.of(context).pushReplacementNamed('/auth');
+      return;
+    }
     
     // Verificar se é a primeira vez
     final prefs = await SharedPreferences.getInstance();
